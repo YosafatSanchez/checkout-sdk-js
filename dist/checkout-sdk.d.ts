@@ -27,6 +27,66 @@ declare interface AddressRequestBody {
     }>;
 }
 
+declare interface AdyenCardDataPaymentMethodState {
+    paymentMethod: AdyenCardPaymentMethodState;
+}
+
+declare interface AdyenCardPaymentMethodState {
+    encryptedCardNumber: string;
+    encryptedExpiryMonth: string;
+    encryptedExpiryYear: string;
+    encryptedSecurityCode: string;
+    holderName?: string;
+    type: string;
+}
+
+declare interface AdyenCardState {
+    data: AdyenCardDataPaymentMethodState;
+    isValid?: boolean;
+}
+
+declare interface AdyenComponent {
+    mount(containerId: string): HTMLElement;
+    unmount(): void;
+}
+
+declare interface AdyenStyleOptions {
+    /**
+     * Base styling applied to the iframe. All styling extends from this style.
+     */
+    base?: CssProperties;
+    /**
+     * Styling applied when a field fails validation.
+     */
+    error?: CssProperties;
+    /**
+     * Styling applied to the field's placeholder values.
+     */
+    placeholder?: CssProperties;
+    /**
+     * Styling applied once a field passes validation.
+     */
+    validated?: CssProperties;
+}
+
+/**
+ * A set of options that are required to initialize the AdyenV2 payment method.
+ *
+ * Once AdyenV2 payment is initialized, credit card form fields, provided by the
+ * payment provider as iframes, will be inserted into the current page. These
+ * options provide a location and styling for each of the form fields.
+ */
+declare interface AdyenV2PaymentInitializeOptions {
+    /**
+     * The location to insert the Adyen component.
+     */
+    containerId: string;
+    /**
+     * Optional. Overwriting the default options
+     */
+    options?: CardComponentOptions;
+}
+
 /**
  * A set of options that are required to initialize the customer step of
  * checkout to support Amazon Pay.
@@ -292,6 +352,51 @@ declare interface ButtonStyles extends BlockElementStyles {
 declare enum ButtonType {
     Long = "long",
     Short = "short"
+}
+
+declare interface CardComponentOptions {
+    /**
+     * Set an object containing the details array for type: scheme from
+     * the /paymentMethods response.
+     */
+    details?: InputDetail[];
+    /**
+     * Set to true to show the checkbox to save card details for the next payment.
+     */
+    enableStoreDetails?: boolean;
+    /**
+     * Set to true to request the name of the card holder.
+     */
+    hasHolderName?: boolean;
+    /**
+     * Set to true to require the card holder name.
+     */
+    holderNameRequired?: boolean;
+    /**
+     * Prefill the card holder name field. Supported from Card component
+     */
+    holderName?: string;
+    /**
+     * Defaults to ['mc','visa','amex']. Configure supported card types to
+     * facilitate brand recognition used in the Secured Fields onBrand callback.
+     * See list of available card types. If a shopper enters a card type not
+     * specified in the GroupTypes configuration, the onBrand callback will not be invoked.
+     */
+    groupTypes?: string[];
+    /**
+     * Set a style object to customize the input fields. See Styling Secured Fields
+     * for a list of supported properties.
+     */
+    styles?: AdyenStyleOptions;
+    /**
+     * Specify the sample values you want to appear for card detail input fields.
+     */
+    placeholders?: CreditCardPlaceHolder | SepaPlaceHolder;
+    /**
+     * Called when the shopper enters data in the card input fields.
+     * Here you have the option to override your main Adyen Checkout configuration.
+     */
+    onChange?(state: AdyenCardState, component: AdyenComponent): void;
 }
 
 declare interface CardElementProps extends BaseProps {
@@ -592,6 +697,7 @@ declare class CheckoutService {
     private _spamProtectionActionCreator;
     private _storeProjection;
     private _errorTransformer;
+    private _selectorsFactory;
     /**
      * Returns a snapshot of the current checkout state.
      *
@@ -1410,28 +1516,7 @@ declare interface CheckoutSettings {
  * not executed successfully. For example, if you are unable to submit an order,
  * you can use this object to retrieve the reason for the failure.
  */
-declare class CheckoutStoreErrorSelector {
-    private _billingAddress;
-    private _cart;
-    private _checkout;
-    private _config;
-    private _consignments;
-    private _countries;
-    private _coupons;
-    private _customerStrategies;
-    private _giftCertificates;
-    private _instruments;
-    private _order;
-    private _paymentMethods;
-    private _paymentStrategies;
-    private _shippingCountries;
-    private _shippingStrategies;
-    /**
-     * Gets the error of any checkout action that has failed.
-     *
-     * @returns The error object if unable to perform any checkout action,
-     * otherwise undefined.
-     */
+declare interface CheckoutStoreErrorSelector {
     getError(): Error | undefined;
     /**
      * Returns an error if unable to load the current checkout.
@@ -1640,23 +1725,7 @@ declare class CheckoutStoreErrorSelector {
  * This object has a set of methods that allow you to get a specific piece of
  * checkout information, such as shipping and billing details.
  */
-declare class CheckoutStoreSelector {
-    private _billingAddress;
-    private _cart;
-    private _checkout;
-    private _config;
-    private _consignments;
-    private _countries;
-    private _coupons;
-    private _customer;
-    private _form;
-    private _giftCertificates;
-    private _instruments;
-    private _order;
-    private _payment;
-    private _paymentMethods;
-    private _shippingAddress;
-    private _shippingCountries;
+declare interface CheckoutStoreSelector {
     /**
      * Gets the current checkout.
      *
@@ -1845,22 +1914,7 @@ declare class CheckoutStoreSelector {
  * progress. For example, you can check whether a customer is submitting an
  * order and waiting for the request to complete.
  */
-declare class CheckoutStoreStatusSelector {
-    private _billingAddress;
-    private _cart;
-    private _checkout;
-    private _config;
-    private _consignments;
-    private _countries;
-    private _coupons;
-    private _customerStrategies;
-    private _giftCertificates;
-    private _instruments;
-    private _order;
-    private _paymentMethods;
-    private _paymentStrategies;
-    private _shippingCountries;
-    private _shippingStrategies;
+declare interface CheckoutStoreStatusSelector {
     /**
      * Checks whether any checkout action is pending.
      *
@@ -2175,6 +2229,44 @@ declare interface CreditCardInstrument {
     threeDSecure?: ThreeDSecure | ThreeDSecureToken;
 }
 
+declare interface CreditCardPlaceHolder {
+    encryptedCardNumber?: string;
+    encryptedExpiryDate?: string;
+    encryptedSecurityCode: string;
+}
+
+declare interface CssProperties {
+    background?: string;
+    color?: string;
+    display?: Display;
+    font?: string;
+    fontFamily?: string;
+    fontSize?: string;
+    fontSizeAdjust?: string;
+    fontSmoothing?: string;
+    fontStretch?: FontStretch;
+    fontStyle?: FontStyle;
+    fontVariant?: string;
+    fontVariantAlternates?: string;
+    fontVariantCaps?: string;
+    fontVariantEastAsian?: string;
+    fontVariantLigatures?: string;
+    fontVariantNumeric?: string;
+    fontWeight?: string;
+    letterSpacing?: string;
+    lineHeight?: string;
+    mozOsxFontSmoothing?: string;
+    mozTransition?: string;
+    outline?: string;
+    opacity?: Opacity | number;
+    padding?: string;
+    textAlign?: TextAlign;
+    textShadow?: string;
+    transition?: string;
+    webkitFontSmoothing?: string;
+    webkitTransition?: string;
+}
+
 declare interface Currency {
     name: string;
     code: string;
@@ -2292,6 +2384,32 @@ declare interface DigitalItem extends LineItem {
 declare interface Discount {
     id: string;
     discountedAmount: number;
+}
+
+declare enum Display {
+    inline = "inline",
+    block = "block",
+    contents = "contents",
+    flex = "flex",
+    grid = "grid",
+    inline_block = "inline-block",
+    inline_flex = "inline-flex",
+    inline_grid = "inline-grid",
+    inline_table = "inline-table",
+    list_item = "list-item",
+    run_in = "run-in",
+    table = "table",
+    table_caption = "table-caption",
+    table_column_group = "table-column-group",
+    table_header_group = "table-header-group",
+    table_footer_group = "table-footer-group",
+    table_row_group = "table-row-group",
+    table_cell = "table-cell",
+    table_column = "table-column",
+    table_row = "table-row",
+    none = "none",
+    inital = "initial",
+    inherit = "inherit"
 }
 
 declare class EmbeddedCheckout {
@@ -2413,6 +2531,28 @@ declare interface EmbeddedCheckoutStyles {
 
 declare interface EmbeddedContentOptions {
     contentId?: string;
+}
+
+declare enum FontStretch {
+    ultra_condensed = "ultra-condensed",
+    extra_condensed = "extra-condensed",
+    condensed = "condensed",
+    semi_condensed = "semi-condensed",
+    normal = "normal",
+    semi_expanded = "semi-expanded",
+    expanded = "expanded",
+    extra_expanded = "extra-expanded",
+    ultra_expanded = "ultra-expanded",
+    initial = "initial",
+    inherit = "inherit"
+}
+
+declare enum FontStyle {
+    normal = "normal",
+    italic = "italic",
+    oblique = "oblique",
+    initial = "initial",
+    inherit = "inherit"
 }
 
 declare interface FormField {
@@ -2560,6 +2700,41 @@ declare interface InlineElementStyles {
     lineHeight?: string;
 }
 
+declare interface InputDetail {
+    /**
+     * Configuration parameters for the required input.
+     */
+    configuration?: object;
+    /**
+     * Input details can also be provided recursively.
+     */
+    details?: SubInputDetail[];
+    /**
+     * In case of a select, the URL from which to query the items.
+     */
+    itemSearchUrl?: string;
+    /**
+     * In case of a select, the items to choose from.
+     */
+    items?: Item[];
+    /**
+     * The value to provide in the result.
+     */
+    key?: string;
+    /**
+     * True if this input value is optional.
+     */
+    optional?: boolean;
+    /**
+     * The type of the required input.
+     */
+    type?: string;
+    /**
+     * The value can be pre-filled, if available.
+     */
+    value?: string;
+}
+
 declare interface InputStyles extends BlockElementStyles {
     active?: BlockElementStyles;
     error?: InputStyles;
@@ -2578,6 +2753,17 @@ declare interface Instrument {
     expiryYear: string;
     brand: string;
     trustedShippingAddress: boolean;
+}
+
+declare interface Item {
+    /**
+     * The value to provide in the result.
+     */
+    id?: string;
+    /**
+     * The display name.
+     */
+    name?: string;
 }
 
 declare interface KlarnaLoadResponse {
@@ -2777,6 +2963,10 @@ declare interface NonceGenerationError {
     field: string;
 }
 
+declare enum Opacity {
+    initial = "initial"
+}
+
 declare interface Order {
     baseAmount: number;
     billingAddress: BillingAddress;
@@ -2864,6 +3054,11 @@ declare interface PasswordRequirements {
  * current checkout flow.
  */
 declare interface PaymentInitializeOptions extends PaymentRequestOptions {
+    /**
+     * The options that are required to initialize the AdyenV2 payment
+     * method. They can be omitted unless you need to support AdyenV2.
+     */
+    adyenv2?: AdyenV2PaymentInitializeOptions;
     /**
      * The options that are required to initialize the Amazon Pay payment
      * method. They can be omitted unless you need to support AmazonPay.
@@ -3084,6 +3279,11 @@ declare interface RequestOptions<TParams = {}> {
      * The parameters of the request, if required.
      */
     params?: TParams;
+}
+
+declare interface SepaPlaceHolder {
+    ownerName?: string;
+    ibanNumber?: string;
 }
 
 /**
@@ -3315,9 +3515,45 @@ declare interface StripeV3PaymentInitializeOptions {
     style?: StripeStyleProps;
 }
 
+declare interface SubInputDetail {
+    /**
+     * Configuration parameters for the required input.
+     */
+    configuration?: object;
+    /**
+     * In case of a select, the items to choose from.
+     */
+    items?: Item[];
+    /**
+     * The value to provide in the result.
+     */
+    key?: string;
+    /**
+     * True if this input is optional to provide.
+     */
+    optional?: boolean;
+    /**
+     * The type of the required input.
+     */
+    type?: string;
+    /**
+     * The value can be pre-filled, if available.
+     */
+    value?: string;
+}
+
 declare interface Tax {
     name: string;
     amount: number;
+}
+
+declare enum TextAlign {
+    left = "left",
+    right = "right",
+    center = "center",
+    justify = "justify",
+    initial = "initial",
+    inherit = "inherit"
 }
 
 declare interface TextInputStyles extends InputStyles {
