@@ -171,7 +171,7 @@ export interface AdyenThreeDS2Options {
     /**
      * A callback that gets called when adyen component is mounted
      */
-    onLoad(cancel: () => void): void;
+    onLoad(cancel: () => void , display?: boolean): void;
 
     /**
      * A callback that gets called when adyen component verification

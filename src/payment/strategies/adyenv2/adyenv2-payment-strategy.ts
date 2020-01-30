@@ -331,7 +331,7 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
             onLoad(() => {
                 fingerprintComponent.unmount();
                 reject();
-            });
+            }, false);
 
             fingerprintComponent.mount(`#${threeDS2Container}`);
         });
