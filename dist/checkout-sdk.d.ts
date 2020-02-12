@@ -52,6 +52,11 @@ declare interface AdyenCardComponentEvents {
      * Here you have the option to override your main Adyen Checkout configuration.
      */
     onChange?(state: AdyenCardState, component: AdyenComponent): void;
+    /**
+     * A callback that gets called when adyen component
+     * is focused
+     */
+    onFocus?(): void;
 }
 
 declare interface AdyenCardDataPaymentMethodState {
@@ -175,6 +180,11 @@ declare interface AdyenV2PaymentInitializeOptions {
      * Optional. Overwriting the default options
      */
     options?: Omit<AdyenCreditCardComponentOptions, 'onChange'>;
+    /**
+     * A callback that gets called when adyen component
+     * is focused
+     */
+    onFocus?(): void;
 }
 
 /**
