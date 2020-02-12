@@ -34,4 +34,10 @@ export default interface AdyenV2PaymentInitializeOptions {
      * Optional. Overwriting the default options
      */
     options?: Omit<AdyenCreditCardComponentOptions, 'onChange'>;
+
+    /**
+     * A callback that gets called when adyen component
+     * is focused
+     */
+    onFocus?(): void;
 }

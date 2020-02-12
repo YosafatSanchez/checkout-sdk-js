@@ -490,6 +490,12 @@ export interface AdyenCardComponentEvents {
      * Here you have the option to override your main Adyen Checkout configuration.
      */
     onChange?(state: AdyenCardState, component: AdyenComponent): void;
+
+    /**
+     * A callback that gets called when adyen component
+     * is focused
+     */
+    onFocus?(): void;
 }
 
 export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenCardComponentEvents {

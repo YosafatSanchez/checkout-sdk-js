@@ -66,6 +66,11 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
                         onChange: (state: AdyenCardState) => {
                             this._updateAdyenComponentState(state);
                         },
+                        onFocus: () => {
+                            if (adyenv2.onFocus) {
+                                adyenv2.onFocus();
+                            }
+                        },
                     }
                 );
 
