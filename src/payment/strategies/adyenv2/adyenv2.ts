@@ -27,35 +27,42 @@ export enum AdyenActionType {
 }
 
 export enum AdyenComponentType {
-    ThreeDS2DeviceFingerprint = 'threeDS2DeviceFingerprint',
-    ThreeDS2Challenge = 'threeDS2Challenge',
     SecuredFields = 'securedfields',
-    IDEAL = 'ideal',
 }
 
 export enum AdyenPaymentMethodType {
     Scheme = 'scheme',
-    BCMC = 'bcmc',
-    IDEAL = 'ideal',
-    Giropay = 'giropay',
+    WechatpayQR = 'wechatpayQR',
 }
 
 export enum HTTPMethod {
-    GET = 'GET',
     POST = 'POST',
 }
 
 export enum ResultCode {
-    AuthenticationFinished = 'AuthenticationFinished',
-    Authorised = 'Authorised',
-    Cancelled = 'Cancelled',
     ChallengeShopper = 'ChallengeShopper',
     Error = 'Error',
     IdentifyShopper = 'IdentifyShopper',
-    Pending = 'Pending',
-    Received = 'Received',
-    RedirectShopper = 'RedirectShopper',
-    Refused = 'Refused',
+}
+
+interface AdyenPaymentMethodState {
+    type: string;
+}
+
+interface CardDataPaymentMethodState {
+    paymentMethod: CardPaymentMethodState;
+}
+
+interface WechatDataPaymentMethodState {
+    paymentMethod: AdyenPaymentMethodState;
+}
+
+interface CardPaymentMethodState extends AdyenPaymentMethodState {
+    encryptedCardNumber: string;
+    encryptedExpiryMonth: string;
+    encryptedExpiryYear: string;
+    encryptedSecurityCode: string;
+    holderName?: string;
 }
 
 export interface AdyenAction {
@@ -126,31 +133,20 @@ export interface AdyenAdditionalActionState {
     isValid?: boolean;
 }
 
-interface CardDataPaymentMethodState {
-    paymentMethod: CardPaymentMethodState;
-}
-
-interface CardPaymentMethodState {
-    encryptedCardNumber: string;
-    encryptedExpiryMonth: string;
-    encryptedExpiryYear: string;
-    encryptedSecurityCode: string;
-    holderName?: string;
-    type: string;
-}
-
-export interface AdyenCardComponentEvents {
+export interface AdyenComponentEvents {
     /**
      * Called when the shopper enters data in the card input fields.
      * Here you have the option to override your main Adyen Checkout configuration.
      */
-    onChange?(state: CardState, component: AdyenComponent): void;
+    onChange?(state: AdyenComponentState, component: AdyenComponent): void;
 
     /**
      * Called in case of an invalid card number, invalid expiry date, or
      *  incomplete field. Called again when errors are cleared.
      */
-    onError?(state: CardState, component: AdyenComponent): void;
+    onError?(state: AdyenComponentState, component: AdyenComponent): void;
+
+    onSubmit?(state: AdyenComponentState, component: AdyenComponent): void;
 }
 
 export interface AdyenCheckout {
@@ -198,7 +194,7 @@ export interface AdyenConfiguration {
     onAdditionalDetails?(state: CardState, component?: AdyenComponent): void;
 }
 
-export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenCardComponentEvents {
+export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenComponentEvents {
     /**
      * Set an object containing the details array for type: scheme from
      * the /paymentMethods response.
@@ -239,7 +235,7 @@ export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentO
     placeholders?: CreditCardPlaceHolder | SepaPlaceHolder;
 }
 
-export interface AdyenCustomCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenCardComponentEvents {
+export interface AdyenCustomCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenComponentEvents {
     /**
      * Specify aria attributes for the input fields for web accessibility.
      */
@@ -449,6 +445,10 @@ export interface Card {
 export interface CardState {
     data: CardDataPaymentMethodState;
     isValid?: boolean;
+}
+
+export interface WechatState {
+    data: WechatDataPaymentMethodState;
 }
 
 export interface CreditCardPlaceHolder {
@@ -768,5 +768,5 @@ export interface ThreeDS2Options extends AdyenAdditionalActionCallbacks {
 }
 
 export type AdyenComponentState = (
-    CardState
+    CardState | WechatState
 );

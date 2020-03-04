@@ -5,14 +5,14 @@ import { getBrowserInfo } from '../../../common/browser-info';
 import { InvalidArgumentError, MissingDataError, MissingDataErrorType, NotInitializedError, NotInitializedErrorType, RequestError } from '../../../common/error/errors';
 import { OrderActionCreator, OrderRequestBody } from '../../../order';
 import { OrderFinalizationNotRequiredError } from '../../../order/errors';
-import { PaymentArgumentInvalidError } from '../../errors';
+import { PaymentArgumentInvalidError, PaymentMethodCancelledError } from '../../errors';
 import isVaultedInstrument from '../../is-vaulted-instrument';
 import Payment, { HostedInstrument } from '../../payment';
 import PaymentActionCreator from '../../payment-action-creator';
 import { PaymentInitializeOptions, PaymentRequestOptions } from '../../payment-request-options';
 import PaymentStrategy from '../payment-strategy';
 
-import { AdyenAction, AdyenActionType, AdyenAdditionalAction, AdyenAdditionalActionState, AdyenCheckout, AdyenComponent, AdyenComponentState, AdyenComponentType, AdyenConfiguration, AdyenError } from './adyenv2';
+import { AdyenAction, AdyenActionType, AdyenAdditionalAction, AdyenAdditionalActionState, AdyenCheckout, AdyenComponent, AdyenComponentState, AdyenComponentType, AdyenConfiguration, AdyenError, AdyenPaymentMethodType, CardState } from './adyenv2';
 import AdyenV2PaymentInitializeOptions from './adyenv2-initialize-options';
 import AdyenV2ScriptLoader from './adyenv2-script-loader';
 
@@ -57,33 +57,46 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
             .then(adyenCheckout => {
                 this._adyenCheckout = adyenCheckout;
 
-                const paymentComponent = this._adyenCheckout.create(
-                    paymentMethod.method,
-                    {
-                        ...adyenv2.options,
-                        onChange: (componentState: AdyenComponentState) => {
-                            this._updateComponentState(componentState);
-                        },
+                if (paymentMethod.method !== AdyenPaymentMethodType.WechatpayQR) {
+                    const paymentComponent = this._adyenCheckout.create(
+                        paymentMethod.method,
+                        {
+                            ...adyenv2.options,
+                            onChange: (componentState: AdyenComponentState) => {
+                                this._updateComponentState(componentState);
+                            },
+                            onSubmit: (componentState: AdyenComponentState) => {
+                                this._updateComponentState(componentState);
+                            },
+                        }
+                    );
+
+                    paymentComponent.mount(`#${adyenv2.containerId}`);
+
+                    this._paymentComponent = paymentComponent;
+
+                    if (adyenv2.cardVerificationContainerId) {
+                        const cardVerificationComponent = this._adyenCheckout.create(AdyenComponentType.SecuredFields, {
+                            onChange: (componentState: AdyenComponentState) => {
+                                this._updateComponentState(componentState);
+                            },
+                            onError: (componentState: AdyenComponentState) => {
+                                this._updateComponentState(componentState);
+                            },
+                        });
+
+                        cardVerificationComponent.mount(`#${adyenv2.cardVerificationContainerId}`);
+
+                        this._cardVerificationComponent = cardVerificationComponent;
                     }
-                );
-
-                paymentComponent.mount(`#${adyenv2.containerId}`);
-
-                this._paymentComponent = paymentComponent;
-
-                if (adyenv2.cardVerificationContainerId) {
-                    const cardVerificationComponent = this._adyenCheckout.create(AdyenComponentType.SecuredFields, {
-                        onChange: (componentState: AdyenComponentState) => {
-                            this._updateComponentState(componentState);
-                        },
-                        onError: (componentState: AdyenComponentState) => {
-                            this._updateComponentState(componentState);
+                } else {
+                    this._updateComponentState({
+                        data: {
+                            paymentMethod: {
+                                type: AdyenPaymentMethodType.WechatpayQR,
+                            },
                         },
                     });
-
-                    cardVerificationComponent.mount(`#${adyenv2.cardVerificationContainerId}`);
-
-                    this._cardVerificationComponent = cardVerificationComponent;
                 }
 
                 return Promise.resolve(this._store.getState());
@@ -106,9 +119,9 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
                 if (!componentState) {
                     throw new NotInitializedError(NotInitializedErrorType.PaymentNotInitialized);
                 }
-                if (paymentData && isVaultedInstrument(paymentData)) {
 
-                    const { encryptedCardNumber, encryptedSecurityCode } = componentState.data.paymentMethod;
+                if (paymentData && isVaultedInstrument(paymentData)) {
+                    const { encryptedCardNumber, encryptedSecurityCode } = (componentState as CardState).data.paymentMethod;
 
                     return this._store.dispatch(this._paymentActionCreator.submitPayment({
                         ...payment,
@@ -183,22 +196,6 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
         return widgetSize;
     }
 
-    private async _processPayment(error: any, shouldSaveInstrument?: boolean): Promise<any> {
-        if (!(error instanceof RequestError) || !some(error.body.errors, { code: 'additional_action_required' })) {
-            return Promise.reject(error);
-        }
-
-        const payment = await this._handleFromAction(error.body.provider_data);
-
-        return await this._store.dispatch(this._paymentActionCreator.submitPayment({
-            ...payment,
-            paymentData: {
-                ...payment.paymentData,
-                shouldSaveInstrument,
-            },
-        }));
-    }
-
     private _handleFromAction(additionalAction: AdyenAdditionalAction): Promise<Payment> {
         return new Promise((resolve, reject) => {
             if (!this._adyenCheckout) {
@@ -229,18 +226,36 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
             });
 
             if (onBeforeLoad) {
-                onBeforeLoad(adyenAction.type === AdyenActionType.ThreeDS2Challenge);
+                onBeforeLoad(adyenAction.type === AdyenActionType.ThreeDS2Challenge ||
+                    adyenAction.type === AdyenActionType.QRCode);
             }
 
             additionalActionComponent.mount(`#${containerId || threeDS2ContainerId}`);
 
             if (onLoad) {
                 onLoad(() => {
-                    reject('Close button clicked');
+                    reject(new PaymentMethodCancelledError());
                     additionalActionComponent.unmount();
                 });
             }
         });
+    }
+
+    private _processPayment(error: any, shouldSaveInstrument?: boolean): Promise<any> {
+        if (!(error instanceof RequestError) || !some(error.body.errors, {code: 'additional_action_required'})) {
+            return Promise.reject(error);
+        }
+
+        return this._handleFromAction(error.body.provider_data)
+            .then(payment =>
+                this._store.dispatch(this._paymentActionCreator.submitPayment({
+                    ...payment,
+                    paymentData: {
+                        ...payment.paymentData,
+                        shouldSaveInstrument,
+                    },
+                }))
+            );
     }
 
     private _updateComponentState(componentState: AdyenComponentState) {

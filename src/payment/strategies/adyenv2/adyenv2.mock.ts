@@ -84,6 +84,21 @@ export function getAdyenError(): AdyenError {
     };
 }
 
+export function getComponentState(isValid: boolean = true): AdyenComponentState {
+    return {
+        data: {
+            paymentMethod: {
+                encryptedCardNumber: 'ENCRYPTED_CARD_NUMBER',
+                encryptedExpiryMonth: 'ENCRYPTED_EXPIRY_MONTH',
+                encryptedExpiryYear: 'ENCRYPTED_EXPIRY_YEAR',
+                encryptedSecurityCode: 'ENCRYPTED_CVV',
+                type: AdyenPaymentMethodType.Scheme,
+            },
+        },
+        isValid,
+    };
+}
+
 export function getInitializeOptions(): PaymentInitializeOptions {
     return {
         methodId: 'adyenv2',
@@ -187,19 +202,4 @@ export function getUnknownError(): RequestError {
         ...getUnknownErrorResponse(),
         ...getErrorPaymentResponseBody(),
     }));
-}
-
-export function getCardState(isValid: boolean = true): AdyenComponentState {
-    return {
-        data: {
-            paymentMethod: {
-                encryptedCardNumber: 'CARD_NUMBER',
-                encryptedExpiryMonth: 'EXPIRY_MONTH',
-                encryptedExpiryYear: 'EXPIRY_YEAR',
-                encryptedSecurityCode: 'CVV',
-                type: AdyenPaymentMethodType.Scheme,
-            },
-        },
-        isValid,
-    };
 }
