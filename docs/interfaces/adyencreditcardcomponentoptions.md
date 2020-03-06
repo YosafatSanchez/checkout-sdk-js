@@ -6,7 +6,7 @@
 
  [AdyenBaseCardComponentOptions](adyenbasecardcomponentoptions.md)
 
- [AdyenCardComponentEvents](adyencardcomponentevents.md)
+ [AdyenComponentEvents](adyencomponentevents.md)
 
 **↳ AdyenCreditCardComponentOptions**
 
@@ -27,6 +27,8 @@
 ### Methods
 
 * [onChange](adyencreditcardcomponentoptions.md#onchange)
+* [onError](adyencreditcardcomponentoptions.md#onerror)
+* [onSubmit](adyencreditcardcomponentoptions.md#onsubmit)
 
 ---
 
@@ -113,7 +115,7 @@ ___
 
 ### `<Optional>` styles
 
-**● styles**: *[AdyenStyleOptions](adyenstyleoptions.md)*
+**● styles**: *[StyleOptions](styleoptions.md)*
 
 Set a style object to customize the input fields. See Styling Secured Fields for a list of supported properties.
 
@@ -125,7 +127,7 @@ ___
 
 ### `<Optional>` onChange
 
-▸ **onChange**(state: *[AdyenCardState](adyencardstate.md)*, component: *[AdyenComponent](adyencomponent.md)*): `void`
+▸ **onChange**(state: *[AdyenComponentState](../#adyencomponentstate)*, component: *[AdyenComponent](adyencomponent.md)*): `void`
 
 Called when the shopper enters data in the card input fields. Here you have the option to override your main Adyen Checkout configuration.
 
@@ -133,7 +135,41 @@ Called when the shopper enters data in the card input fields. Here you have the 
 
 | Param | Type |
 | ------ | ------ |
-| state | [AdyenCardState](adyencardstate.md) |
+| state | [AdyenComponentState](../#adyencomponentstate) |
+| component | [AdyenComponent](adyencomponent.md) |
+
+**Returns:** `void`
+
+___
+<a id="onerror"></a>
+
+### `<Optional>` onError
+
+▸ **onError**(state: *[AdyenComponentState](../#adyencomponentstate)*, component: *[AdyenComponent](adyencomponent.md)*): `void`
+
+Called in case of an invalid card number, invalid expiry date, or incomplete field. Called again when errors are cleared.
+
+**Parameters:**
+
+| Param | Type |
+| ------ | ------ |
+| state | [AdyenComponentState](../#adyencomponentstate) |
+| component | [AdyenComponent](adyencomponent.md) |
+
+**Returns:** `void`
+
+___
+<a id="onsubmit"></a>
+
+### `<Optional>` onSubmit
+
+▸ **onSubmit**(state: *[AdyenComponentState](../#adyencomponentstate)*, component: *[AdyenComponent](adyencomponent.md)*): `void`
+
+**Parameters:**
+
+| Param | Type |
+| ------ | ------ |
+| state | [AdyenComponentState](../#adyencomponentstate) |
 | component | [AdyenComponent](adyencomponent.md) |
 
 **Returns:** `void`

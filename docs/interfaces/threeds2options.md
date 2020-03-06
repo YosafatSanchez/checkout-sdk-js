@@ -1,24 +1,24 @@
-[@bigcommerce/checkout-sdk](../README.md) > [AdyenThreeDS2Options](../interfaces/adyenthreeds2options.md)
+[@bigcommerce/checkout-sdk](../README.md) > [ThreeDS2Options](../interfaces/threeds2options.md)
 
-# AdyenThreeDS2Options
+# ThreeDS2Options
 
 ## Hierarchy
 
- [AdditionalActionCallbacks](additionalactioncallbacks.md)
+ [AdyenAdditionalActionCallbacks](adyenadditionalactioncallbacks.md)
 
-**↳ AdyenThreeDS2Options**
+**↳ ThreeDS2Options**
 
 ## Index
 
 ### Properties
 
-* [widgetSize](adyenthreeds2options.md#widgetsize)
+* [widgetSize](threeds2options.md#widgetsize)
 
 ### Methods
 
-* [onBeforeLoad](adyenthreeds2options.md#onbeforeload)
-* [onComplete](adyenthreeds2options.md#oncomplete)
-* [onLoad](adyenthreeds2options.md#onload)
+* [onBeforeLoad](threeds2options.md#onbeforeload)
+* [onComplete](threeds2options.md#oncomplete)
+* [onLoad](threeds2options.md#onload)
 
 ---
 

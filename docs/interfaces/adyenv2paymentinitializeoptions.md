@@ -76,7 +76,7 @@ ___
 
 ###  threeDS2Options
 
-**● threeDS2Options**: *[AdyenThreeDS2Options](adyenthreeds2options.md)*
+**● threeDS2Options**: *[ThreeDS2Options](threeds2options.md)*
 
 *__deprecated__*: Use additionalActionOptions instead as this property will be removed in the future
 
