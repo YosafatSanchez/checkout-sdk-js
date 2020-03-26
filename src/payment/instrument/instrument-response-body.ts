@@ -1,4 +1,4 @@
-import PaymentInstrument from './instrument';
+import PaymentInstrument, { AccountTypes } from './instrument';
 
 export interface InstrumentError {
     code: number;
@@ -26,7 +26,10 @@ export interface CardInternalInstrument extends BaseInternalInstrument {
 
 export interface AccountInternalInstrument extends BaseInternalInstrument {
     external_id: string;
-    method_type: 'paypal';
+    method: string;
+    method_type: AccountTypes;
+    iban?: string;
+    issuer?: string;
 }
 
 export interface InstrumentsResponseBody {

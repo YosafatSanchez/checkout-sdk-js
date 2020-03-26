@@ -22,8 +22,10 @@ export interface CardInstrument extends BaseInstrument {
 
 export interface AccountInstrument extends BaseInstrument {
     externalId: string;
-    method: 'paypal';
-    type: 'account';
+    method: string;
+    iban?: string;
+    issuer?: string;
+    type: AccountTypes;
 }
 
 export interface VaultAccessToken {
@@ -39,4 +41,9 @@ export interface SessionContext {
 
 export interface InstrumentRequestContext extends SessionContext {
     authToken: string;
+}
+
+export enum AccountTypes {
+    ACCOUNT = 'account',
+    BANK = 'bank',
 }

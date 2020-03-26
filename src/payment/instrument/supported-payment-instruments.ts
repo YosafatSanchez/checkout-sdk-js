@@ -13,6 +13,10 @@ const supportedInstruments: SupportedInstruments = {
         provider: 'adyenv2',
         method: 'bcmc',
     },
+    'adyenv2.ideal': {
+        provider: 'adyenv2',
+        method: 'ideal',
+    },
     braintree: {
         provider: 'braintree',
         method: 'credit_card',

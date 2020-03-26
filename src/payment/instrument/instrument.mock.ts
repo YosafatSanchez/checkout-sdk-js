@@ -1,5 +1,15 @@
-import PaymentInstrument, { CardInstrument, InstrumentRequestContext, VaultAccessToken } from './instrument';
-import { InstrumentsResponseBody, InstrumentErrorResponseBody, InternalInstrumentsResponseBody, InternalVaultAccessTokenResponseBody } from './instrument-response-body';
+import PaymentInstrument, {
+    AccountTypes,
+    CardInstrument,
+    InstrumentRequestContext,
+    VaultAccessToken
+} from './instrument';
+import {
+    InstrumentsResponseBody,
+    InstrumentErrorResponseBody,
+    InternalInstrumentsResponseBody,
+    InternalVaultAccessTokenResponseBody
+} from './instrument-response-body';
 import InstrumentState, { InstrumentMeta } from './instrument-state';
 
 export function getInstrumentsMeta(): InstrumentMeta {
@@ -48,7 +58,7 @@ export function getInstruments(): PaymentInstrument[] {
             defaultInstrument: false,
             method: 'paypal',
             externalId: 'test@external-id.com',
-            type: 'account',
+            type: AccountTypes.ACCOUNT,
         },
     ];
 }
@@ -145,7 +155,7 @@ export function getInternalInstrumentsResponseBody(): InternalInstrumentsRespons
                 provider: 'braintree',
                 trusted_shipping_address: false,
                 default_instrument: false,
-                method_type: 'paypal',
+                method_type: AccountTypes.ACCOUNT,
                 method: 'paypal',
                 external_id: 'test@external-id.com',
             },
