@@ -1,4 +1,4 @@
-import PaymentInstrument, { AccountTypes } from './instrument';
+import PaymentInstrument from './instrument';
 
 export interface InstrumentError {
     code: number;
@@ -27,7 +27,7 @@ export interface CardInternalInstrument extends BaseInternalInstrument {
 export interface AccountInternalInstrument extends BaseInternalInstrument {
     external_id: string;
     method: string;
-    method_type: AccountTypes;
+    method_type: string;
     iban?: string;
     issuer?: string;
 }

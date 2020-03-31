@@ -1,5 +1,4 @@
 import { mapToAccountInstrument } from './map-to-account-instrument';
-import { AccountTypes } from './instrument';
 
 describe('mapToAccountInstrument', () => {
     it('returns a AccountInstrument from a AccountInternalInstrument', () => {
@@ -7,7 +6,7 @@ describe('mapToAccountInstrument', () => {
             bigpay_token: 'my-bigpay-token',
             trusted_shipping_address: true,
             provider: 'braintree',
-            method_type: AccountTypes.ACCOUNT,
+            method_type: 'account',
             method: 'paypal',
             default_instrument: false,
             external_id: 'test@external-id.com',

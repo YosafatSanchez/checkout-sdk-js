@@ -2,18 +2,19 @@ import { Response } from '@bigcommerce/request-sender';
 
 import PaymentResponse from '../payment-response';
 
-import PaymentInstrument, { AccountTypes, VaultAccessToken } from './instrument';
+import PaymentInstrument, { VaultAccessToken } from './instrument';
 import {
     AccountInternalInstrument,
     CardInternalInstrument,
-    InstrumentsResponseBody,
     InstrumentErrorResponseBody,
+    InstrumentsResponseBody,
     InternalInstrument,
+    InternalInstrumentErrorResponseBody,
     InternalInstrumentsResponseBody,
-    InternalInstrumentErrorResponseBody, InternalVaultAccessTokenResponseBody
+    InternalVaultAccessTokenResponseBody
 } from './instrument-response-body';
-import { mapToAccountInstrument } from './map-to-account-instrument';
-import { mapToCardInstrument } from './map-to-card-instrument';
+import {mapToAccountInstrument} from './map-to-account-instrument';
+import {mapToCardInstrument} from './map-to-card-instrument';
 
 export default class InstrumentResponseTransformer {
     transformResponse(
@@ -51,7 +52,8 @@ export default class InstrumentResponseTransformer {
         return vaultedInstruments
             .map(instrument => {
                 switch (instrument.method_type) {
-                    case AccountTypes.BANK:
+                    case 'bank':
+                    case 'account':
                         return mapToAccountInstrument(instrument as AccountInternalInstrument);
                     default:
                         return mapToCardInstrument(instrument as CardInternalInstrument);

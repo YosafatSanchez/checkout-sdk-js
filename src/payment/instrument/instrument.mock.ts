@@ -1,5 +1,4 @@
 import PaymentInstrument, {
-    AccountTypes,
     CardInstrument,
     InstrumentRequestContext,
     VaultAccessToken
@@ -58,7 +57,7 @@ export function getInstruments(): PaymentInstrument[] {
             defaultInstrument: false,
             method: 'paypal',
             externalId: 'test@external-id.com',
-            type: AccountTypes.ACCOUNT,
+            type: 'account',
         },
     ];
 }
@@ -155,7 +154,7 @@ export function getInternalInstrumentsResponseBody(): InternalInstrumentsRespons
                 provider: 'braintree',
                 trusted_shipping_address: false,
                 default_instrument: false,
-                method_type: AccountTypes.ACCOUNT,
+                method_type: 'account',
                 method: 'paypal',
                 external_id: 'test@external-id.com',
             },

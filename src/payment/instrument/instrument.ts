@@ -25,7 +25,7 @@ export interface AccountInstrument extends BaseInstrument {
     method: string;
     iban?: string;
     issuer?: string;
-    type: AccountTypes;
+    type: string;
 }
 
 export interface VaultAccessToken {
@@ -41,9 +41,4 @@ export interface SessionContext {
 
 export interface InstrumentRequestContext extends SessionContext {
     authToken: string;
-}
-
-export enum AccountTypes {
-    ACCOUNT = 'account',
-    BANK = 'bank',
 }
