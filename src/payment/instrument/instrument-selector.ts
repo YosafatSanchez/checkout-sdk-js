@@ -4,7 +4,7 @@ import { filter, flatMap, isMatch, values } from 'lodash';
 import { createSelector } from '../../common/selector';
 import PaymentMethod from '../payment-method';
 
-import PaymentInstrument, { AccountInstrument, CardInstrument} from './instrument';
+import PaymentInstrument, { AccountInstrument, CardInstrument } from './instrument';
 import InstrumentState, { DEFAULT_STATE, InstrumentMeta } from './instrument-state';
 import supportedInstruments from './supported-payment-instruments';
 

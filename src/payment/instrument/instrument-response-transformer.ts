@@ -3,18 +3,9 @@ import { Response } from '@bigcommerce/request-sender';
 import PaymentResponse from '../payment-response';
 
 import PaymentInstrument, { VaultAccessToken } from './instrument';
-import {
-    AccountInternalInstrument,
-    CardInternalInstrument,
-    InstrumentErrorResponseBody,
-    InstrumentsResponseBody,
-    InternalInstrument,
-    InternalInstrumentErrorResponseBody,
-    InternalInstrumentsResponseBody,
-    InternalVaultAccessTokenResponseBody
-} from './instrument-response-body';
-import {mapToAccountInstrument} from './map-to-account-instrument';
-import {mapToCardInstrument} from './map-to-card-instrument';
+import { AccountInternalInstrument, CardInternalInstrument, InstrumentsResponseBody, InstrumentErrorResponseBody, InternalInstrument, InternalInstrumentsResponseBody, InternalInstrumentErrorResponseBody, InternalVaultAccessTokenResponseBody } from './instrument-response-body';
+import { mapToAccountInstrument } from './map-to-account-instrument';
+import { mapToCardInstrument } from './map-to-card-instrument';
 
 export default class InstrumentResponseTransformer {
     transformResponse(
