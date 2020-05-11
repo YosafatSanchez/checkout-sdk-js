@@ -243,9 +243,6 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
                 case AdyenPaymentMethodType.CreditCard:
                 case AdyenPaymentMethodType.ACH:
                 case AdyenPaymentMethodType.Bancontact:
-                case AdyenPaymentMethodType.GiroPay:
-                case AdyenPaymentMethodType.iDEAL:
-                case AdyenPaymentMethodType.SEPA:
                     paymentComponent = adyenClient.create(paymentMethod.method, {
                             ...adyenv2.options,
                             onChange: componentState => this._updateComponentState(componentState),
@@ -253,6 +250,29 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
                     );
 
                     paymentComponent.mount(`#${adyenv2.containerId}`);
+                    break;
+
+                case AdyenPaymentMethodType.GiroPay:
+                case AdyenPaymentMethodType.iDEAL:
+                case AdyenPaymentMethodType.SEPA:
+                    if ( !adyenv2.hasVaultedInstruments ) {
+                        paymentComponent = adyenClient.create(paymentMethod.method, {
+                                ...adyenv2.options,
+                                onChange: componentState => this._updateComponentState(componentState),
+                            }
+                        );
+
+                        paymentComponent.mount(`#${adyenv2.containerId}`);
+
+                    } else {
+                        this._updateComponentState({
+                            data: {
+                                paymentMethod: {
+                                    type: paymentMethod.method,
+                                },
+                            },
+                        });
+                    }
                     break;
 
                 case AdyenPaymentMethodType.AliPay:
