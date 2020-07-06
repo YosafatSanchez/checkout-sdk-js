@@ -210,6 +210,37 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
         });
     }
 
+    private _mapDataFromStoreState() {
+        const billingAddress = this._store.getState().billingAddress.getBillingAddress();
+
+        if (!billingAddress) {
+            return;
+        }
+
+        const {
+            firstName,
+            lastName,
+            address1: street,
+            address2: houseNumberOrName,
+            postalCode,
+            city,
+            stateOrProvinceCode: stateOrProvince,
+            countryCode: country,
+        } = billingAddress;
+
+        return {
+            holderName: `${firstName} ${lastName}`,
+            billingAddress: {
+                street,
+                houseNumberOrName,
+                postalCode,
+                city,
+                stateOrProvince,
+                country,
+            },
+        };
+    }
+
     private _mountCardVerificationComponent(): Promise<AdyenComponent> {
         const adyenv2 = this._getPaymentInitializeOptions();
         const adyenClient = this._getAdyenClient();
@@ -245,10 +276,10 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
                 case AdyenPaymentMethodType.ACH:
                 case AdyenPaymentMethodType.Bancontact:
                     paymentComponent = adyenClient.create(paymentMethod.method, {
-                            ...adyenv2.options,
-                            onChange: componentState => this._updateComponentState(componentState),
-                        }
-                    );
+                        ...adyenv2.options,
+                        onChange: componentState => this._updateComponentState(componentState),
+                        data: this._mapDataFromStoreState(),
+                    });
 
                     try {
                         paymentComponent.mount(`#${adyenv2.containerId}`);
@@ -262,10 +293,9 @@ export default class AdyenV2PaymentStrategy implements PaymentStrategy {
                 case AdyenPaymentMethodType.SEPA:
                     if (!adyenv2.hasVaultedInstruments) {
                         paymentComponent = adyenClient.create(paymentMethod.method, {
-                                ...adyenv2.options,
-                                onChange: componentState => this._updateComponentState(componentState),
-                            }
-                        );
+                            ...adyenv2.options,
+                            onChange: componentState => this._updateComponentState(componentState),
+                        });
 
                         try {
                             paymentComponent.mount(`#${adyenv2.containerId}`);

@@ -215,6 +215,18 @@ export interface AdyenConfiguration {
     onAdditionalDetails?(state: CardState, component?: AdyenComponent): void;
 }
 
+export interface AdyenPlaceholderData {
+    holderName?: string;
+    billingAddress?: {
+        street: string;
+        houseNumberOrName: string;
+        postalCode: string;
+        city: string;
+        stateOrProvince: string;
+        country: string;
+    };
+}
+
 export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentOptions, AdyenComponentEvents {
     /**
      * Set an object containing the details array for type: scheme from
@@ -238,9 +250,9 @@ export interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponentO
     holderNameRequired?: boolean;
 
     /**
-     * Prefill the card holder name field. Supported from Card component
+     * Information to prefill fields.
      */
-    holderName?: string;
+    data?: AdyenPlaceholderData;
 
     /**
      * Defaults to ['mc','visa','amex']. Configure supported card types to
