@@ -42,6 +42,7 @@
 * [AdyenCreditCardComponentOptions](interfaces/adyencreditcardcomponentoptions.md)
 * [AdyenIdealComponentOptions](interfaces/adyenidealcomponentoptions.md)
 * [AdyenPaymentMethodState](interfaces/adyenpaymentmethodstate.md)
+* [AdyenPlaceholderData](interfaces/adyenplaceholderdata.md)
 * [AdyenThreeDS2Options](interfaces/adyenthreeds2options.md)
 * [AdyenV2PaymentInitializeOptions](interfaces/adyenv2paymentinitializeoptions.md)
 * [AmazonPayCustomerInitializeOptions](interfaces/amazonpaycustomerinitializeoptions.md)

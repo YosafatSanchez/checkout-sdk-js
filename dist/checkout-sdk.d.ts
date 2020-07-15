@@ -111,9 +111,9 @@ declare interface AdyenCreditCardComponentOptions extends AdyenBaseCardComponent
      */
     holderNameRequired?: boolean;
     /**
-     * Prefill the card holder name field. Supported from Card component
+     * Information to prefill fields.
      */
-    holderName?: string;
+    data?: AdyenPlaceholderData;
     /**
      * Defaults to ['mc','visa','amex']. Configure supported card types to
      * facilitate brand recognition used in the Secured Fields onBrand callback.
@@ -136,6 +136,18 @@ declare interface AdyenIdealComponentOptions {
 
 declare interface AdyenPaymentMethodState {
     type: string;
+}
+
+declare interface AdyenPlaceholderData {
+    holderName?: string;
+    billingAddress?: {
+        street: string;
+        houseNumberOrName: string;
+        postalCode: string;
+        city: string;
+        stateOrProvince: string;
+        country: string;
+    };
 }
 
 declare interface AdyenThreeDS2Options extends AdyenAdditionalActionCallbacks {
