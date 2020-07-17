@@ -41,27 +41,11 @@ export interface PaymentIntent {
     status: 'succeeded' | string;
 }
 
-export interface PaymentIntentConfirmParams {
-    /**
-     * Indicates that you intend to make future payments with this PaymentIntent's payment method.
-     *
-     * If present, the payment method used with this PaymentIntent can be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer, even after the transaction completes.
-     *
-     * Use `on_session` if you intend to only reuse the payment method when your customer is present in your checkout flow. Use `off_session` if your customer may or may not be in your checkout flow.
-     */
-    setup_future_usage?: 'off_session' | 'on_session' | null;
-
-    /**
-     * Shipping information for this PaymentIntent.
-     */
-    shipping?: StripeAddress;
-}
-
 export interface PaymentMethodCreateParams {
     /**
      * Billing information associated with the PaymentMethod that may be used or required by particular types of payment methods.
      */
-    billing_details?: StripeAddress;
+    billing_details?: StripeBillingDetails;
 }
 
 export interface StripeError {
@@ -308,7 +292,7 @@ export interface StripeElementClasses {
     webkitAutoFill?: string;
 }
 
-interface BaseStripeAddress {
+export interface StripeAddress {
     /**
      * City, district, suburb, town, or village.
      */
@@ -322,7 +306,7 @@ interface BaseStripeAddress {
     /**
      * Address line 1 (e.g., street, PO Box, or company name).
      */
-    line1: string | undefined;
+    line1: string;
 
     /**
      * Address line 2 (e.g., apartment, suite, unit, or building).
@@ -340,11 +324,11 @@ interface BaseStripeAddress {
     state?: string;
 }
 
-export interface StripeAddress {
+export interface StripeBillingDetails {
     /**
      * Billing address.
      */
-    address?: BaseStripeAddress;
+    address?: StripeAddress;
 
     /**
      * Email address.
@@ -362,35 +346,88 @@ export interface StripeAddress {
     phone?: string;
 }
 
+export interface StripeShippingAddress {
+    /**
+     * Shipping Address
+     */
+    address: StripeAddress;
+
+    /**
+     * Recipient name
+     */
+    name: string;
+
+    /**
+     * The delivery service that shipped a physical product, such as Fedex, UPS, USPS, etc.
+     */
+    carrier?: string;
+
+    /**
+     * Recipient phone (including extension).
+     */
+    phone?: string;
+
+    /**
+     * The tracking number for a physical product, obtained from the delivery service.
+     * If multiple tracking numbers were generated for this purchase, please separate them with commas.
+     */
+    tracking_number?: string;
+}
+
 /**
  * Data to be sent with a `stripe.confirmCardPayment` request.
  * Refer to the [Payment Intents API](https://stripe.com/docs/api/payment_intents/confirm) for a full list of parameters.
  */
-export interface StripeConfirmCardPaymentData extends PaymentIntentConfirmParams {
+export interface StripeConfirmCardPaymentData {
     /*
-     * An object containing data to create a `PaymentMethod` with.
-     * This field is optional if a `PaymentMethod` has already been attached to this `PaymentIntent`.
+     * Either the id of an existing [PaymentMethod](https://stripe.com/docs/api/payment_methods), or an object containing data to create a
+     * PaymentMethod with. See the use case sections below for details.
      *
      * @recommended
      */
     payment_method?: CreatePaymentMethodCardData;
+
+    /**
+     * The [shipping details](https://stripe.com/docs/api/payment_intents/confirm#confirm_payment_intent-shipping) for the payment, if collected.
+     *
+     * @recommended
+     */
+    shipping?: StripeShippingAddress;
+
+    /**
+     * If you are [handling next actions yourself](https://stripe.com/docs/payments/payment-intents/verifying-status#next-actions), pass in a return_url. If the subsequent action
+     * is redirect_to_url, this URL will be used on the return path for the redirect.
+     *
+     * @recommended
+     */
+    return_url?: string;
+
+    /**
+     * Indicates that you intend to make future payments with this PaymentIntent's payment method.
+     *
+     * If present, the payment method used with this PaymentIntent can be [attached](https://stripe.com/docs/api/payment_methods/attach) to a Customer, even after the transaction completes.
+     *
+     * Use `on_session` if you intend to only reuse the payment method when your customer is present in your checkout flow. Use `off_session` if your customer may or may not be in your checkout flow.
+     */
+    setup_future_usage?: 'off_session' | 'on_session' | null;
 }
 
 /**
  * Data to be sent with a `stripe.confirmIdealPayment` request.
  * Refer to the [Payment Intents API](https://stripe.com/docs/api/payment_intents/confirm) for a full list of parameters.
  */
-export interface StripeConfirmIdealPaymentData extends PaymentIntentConfirmParams {
+export interface StripeConfirmIdealPaymentData {
     /*
-    * An object containing data to create a `PaymentMethod` with.
-    * This field is optional if a `PaymentMethod` has already been attached to this `PaymentIntent`.
-    *
-    * @recommended
-    */
+     * Either the id of an existing [PaymentMethod](https://stripe.com/docs/api/payment_methods), or an object containing data to create a
+     * PaymentMethod with. See the use case sections below for details.
+     *
+     * @recommended
+     */
     payment_method?: CreatePaymentMethodIdealData;
 
     /**
-     * The url your customer will be directed to after they complete authentication.
+     * If you are [handling next actions yourself](https://stripe.com/docs/payments/payment-intents/verifying-status#next-actions), pass in a return_url. If the subsequent action
+     * is redirect_to_url, this URL will be used on the return path for the redirect.
      *
      * @recommended
      */
@@ -401,13 +438,13 @@ export interface StripeConfirmIdealPaymentData extends PaymentIntentConfirmParam
  * Data to be sent with a `stripe.confirmSEPAPayment` request.
  * Refer to the [Payment Intents API](https://stripe.com/docs/api/payment_intents/confirm) for a full list of parameters.
  */
-export interface StripeConfirmSepaPaymentData extends PaymentIntentConfirmParams {
+export interface StripeConfirmSepaPaymentData {
     /*
-    * An object containing data to create a `PaymentMethod` with.
-    * This field is optional if a `PaymentMethod` has already been attached to this `PaymentIntent`.
-    *
-    * @recommended
-    */
+     * Either the id of an existing [PaymentMethod](https://stripe.com/docs/api/payment_methods), or an object containing data to create a
+     * PaymentMethod with. See the use case sections below for details.
+     *
+     * @recommended
+     */
     payment_method?: CreatePaymentMethodSepaData;
 }
 

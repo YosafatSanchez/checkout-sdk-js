@@ -26,7 +26,7 @@ import { getErrorPaymentResponseBody } from '../../payments.mock';
 import { StripeElement, StripeElementType, StripeV3Client } from './stripev3';
 import StripeV3PaymentStrategy from './stripev3-payment-strategy';
 import StripeV3ScriptLoader from './stripev3-script-loader';
-import { getConfirmPaymentResponse, getFailingStripeV3JsMock, getStripeCardPaymentOptionsWithGuestUser, getStripeCardPaymentOptionsWithGuestUserWithoutAddress, getStripeCardPaymentOptionsWithSignedUser, getStripePaymentMethodOptionsWithGuestUser, getStripePaymentMethodOptionsWithGuestUserWithoutAddress, getStripePaymentMethodOptionsWithSignedUser, getStripeV3InitializeOptionsMock, getStripeV3JsMock, getStripeV3OrderRequestBodyMock, getStripeV3OrderRequestBodyVIMock } from './stripev3.mock';
+import { getConfirmPaymentResponse, getFailingStripeV3JsMock, getStripeBillingAddress, getStripePaymentMethodOptionsWithGuestUserWithoutAddress, getStripeShippingAddress, getStripeShippingAddressGuestUserWithoutAddress, getStripeV3InitializeOptionsMock, getStripeV3JsMock, getStripeV3OrderRequestBodyMock, getStripeV3OrderRequestBodyVIMock } from './stripev3.mock';
 
 describe('StripeV3PaymentStrategy', () => {
     let finalizeOrderAction: Observable<FinalizeOrderAction>;
@@ -411,10 +411,10 @@ describe('StripeV3PaymentStrategy', () => {
             expect(stripeV3JsMock.confirmCardPayment).toHaveBeenCalledWith(
                 'myToken',
                 {
-                    ...getStripeCardPaymentOptionsWithSignedUser(),
+                    shipping: getStripeShippingAddress(),
                     payment_method: {
                         card: cardElement,
-                        ...getStripePaymentMethodOptionsWithSignedUser(),
+                        billing_details: getStripeBillingAddress(),
                     },
                 }
             );
@@ -445,10 +445,10 @@ describe('StripeV3PaymentStrategy', () => {
             expect(stripeV3JsMock.confirmCardPayment).toHaveBeenCalledWith(
                 'myToken',
                 {
-                    ...getStripeCardPaymentOptionsWithGuestUser(),
+                    shipping: getStripeShippingAddress(),
                     payment_method: {
                         card: cardElement,
-                        ...getStripePaymentMethodOptionsWithGuestUser(),
+                        billing_details: getStripeBillingAddress(),
                     },
                 }
             );
@@ -479,7 +479,7 @@ describe('StripeV3PaymentStrategy', () => {
             expect(stripeV3JsMock.confirmCardPayment).toHaveBeenCalledWith(
                 'myToken',
                 {
-                    ...getStripeCardPaymentOptionsWithGuestUserWithoutAddress(),
+                    ...getStripeShippingAddressGuestUserWithoutAddress(),
                     payment_method: {
                         card: cardElement,
                         ...getStripePaymentMethodOptionsWithGuestUserWithoutAddress(),

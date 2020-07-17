@@ -16,7 +16,7 @@ import PaymentMethodActionCreator from '../../payment-method-action-creator';
 import { PaymentInitializeOptions, PaymentRequestOptions } from '../../payment-request-options';
 import PaymentStrategy from '../payment-strategy';
 
-import { PaymentIntent, StripeAdditionalAction, StripeAdditionalActionError, StripeAddress, StripeConfirmCardPaymentData, StripeConfirmIdealPaymentData, StripeConfirmPaymentData, StripeConfirmSepaPaymentData, StripeElement, StripeElements, StripeElementType, StripeError, StripePaymentMethodType, StripeV3Client } from './stripev3';
+import { PaymentIntent, StripeAdditionalAction, StripeAdditionalActionError, StripeAddress, StripeBillingDetails, StripeConfirmCardPaymentData, StripeConfirmIdealPaymentData, StripeConfirmPaymentData, StripeConfirmSepaPaymentData, StripeElement, StripeElements, StripeElementType, StripeError, StripePaymentMethodType, StripeShippingAddress, StripeV3Client } from './stripev3';
 import StripeV3PaymentInitializeOptions from './stripev3-initialize-options';
 import StripeV3ScriptLoader from './stripev3-script-loader';
 
@@ -253,9 +253,7 @@ export default class StripeV3PaymentStrategy implements PaymentStrategy {
         });
     }
 
-    private _mapStripeAddress(address?: Address, customer?: Customer, padding = false): StripeAddress {
-        let result = {};
-
+    private _mapStripeAddress(address?: Address): StripeAddress {
         if (address) {
             const {
                 city,
@@ -266,38 +264,36 @@ export default class StripeV3PaymentStrategy implements PaymentStrategy {
                 stateOrProvinceCode: state,
             } = address;
 
-            result = { address: { city, country, line1, line2, postal_code: postalCode, state } };
-        } else if (padding) {
-            result = { address: { line1: '' } };
+            return { city, country, line1, line2, postal_code: postalCode, state };
         }
 
-        const { firstName, lastName } = address || customer || { firstName: 'Guest', lastName: '' };
-
-        return {
-            ...result,
-            name: `${firstName} ${lastName}`.trim(),
-        };
+        return { line1: '' };
     }
 
-    private _mapStripeBillingDetails(customer?: Customer): StripeAddress {
+    private _mapStripeBillingDetails(customer?: Customer): StripeBillingDetails {
         const billingAddress = this._store.getState().billingAddress.getBillingAddress();
-        const result = this._mapStripeAddress(billingAddress, customer);
+        const { firstName, lastName } = billingAddress || customer || { firstName: 'Guest', lastName: '' };
+        const name = `${firstName} ${lastName}`.trim();
+
+        const address = {
+            address:  this._mapStripeAddress(billingAddress),
+        };
 
         if (customer && customer.addresses[0] && isBillingAddressLike(customer.addresses[0])) {
             const customerAddress = customer.addresses[0];
             const { email } = customer;
             const { phone } = customerAddress;
 
-            return { ...result, email, phone };
+            return { ...address, email, name, phone };
         }
 
         if (billingAddress) {
             const { email, phone } = billingAddress;
 
-            return {...result, email, phone};
+            return {...address, email, name, phone};
         }
 
-        return {...result};
+        return {...address, name};
     }
 
     private _mapStripePaymentData(element: StripePaymentMethodType.CreditCard, shouldSaveInstrument: boolean): StripeConfirmCardPaymentData;
@@ -312,28 +308,45 @@ export default class StripeV3PaymentStrategy implements PaymentStrategy {
                 [element]: this._getStripeElement(),
                 billing_details: this._mapStripeBillingDetails(customer),
             },
-            shipping: this._mapStripeShippingAddress(customer),
         };
 
         switch (element) {
             case StripePaymentMethodType.CreditCard:
-                result = arg2 ? { ...result, setup_future_usage: 'off_session' } : result;
+                result = { ...result, shipping: this._mapStripeShippingAddress(customer) };
 
-                break;
+                return arg2 ? { ...result, setup_future_usage: 'off_session' } : result;
 
             case StripePaymentMethodType.iDEAL:
-                result = { ...result, return_url: arg2 };
+                return { ...result, return_url: arg2 };
 
-                break;
         }
 
         return result;
     }
 
-    private _mapStripeShippingAddress(customer?: Customer): StripeAddress {
+    private _mapStripeShippingAddress(customer?: Customer): StripeShippingAddress {
         const shippingAddress = this._store.getState().shippingAddress.getShippingAddress();
+        const { firstName, lastName } = shippingAddress || customer || { firstName: 'Guest', lastName: '' };
+        const name = `${firstName} ${lastName}`.trim();
 
-        return this._mapStripeAddress(shippingAddress, customer, true);
+        const address = {
+            address:  this._mapStripeAddress(shippingAddress),
+        };
+
+        if (customer && customer.addresses[0] && isBillingAddressLike(customer.addresses[0])) {
+            const customerAddress = customer.addresses[0];
+            const { phone } = customerAddress;
+
+            return { ...address, name, phone };
+        }
+
+        if (shippingAddress) {
+            const { phone } = shippingAddress;
+
+            return {...address, name, phone};
+        }
+
+        return {...address, name};
     }
 
     private _unmountElement(): void {
